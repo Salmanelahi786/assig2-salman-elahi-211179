@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #country-container {
+            text-align: center;
+        }
+
+        #country-info {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 100px;
+            max-height: 60px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="country-container">
+        <h1>Countries Information</h1>
+        <label for="countries">Select a country:</label>
+        <select id="countries" onchange="fetchCountryInfo(this.value)">
+            <!-- Options will be added dynamically using JavaScript -->
+        </select>
+        <div id="country-info"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const countriesSelect = document.getElementById('countries');
+            const countryContainer = document.getElementById('country-info');
+
+            // Fetch country names from the API
+            fetch('https://restcountries.com/v3.1/all')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name.common;
+                        option.textContent = country.name.common;
+                        countriesSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching country names:', error));
+        });
+
+        function fetchCountryInfo(countryName) {
+            const apiUrl = `https://restcountries.com/v3.1/name/${countryName}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const countryInfoContainer = document.getElementById('country-info');
+
+                    // Display information for the selected country
+                    displayCountryInfo(countryInfoContainer, data[0]);
+                })
+                .catch(error => console.error('Error fetching country info:', error));
+        }
+
+        function displayCountryInfo(container, country) {
+            const countryName = country.name.common;
+            const capital = country.capital ? country.capital[0] : 'N/A';
+            const flagUrl = country.flags ? country.flags.png : '';
+
+            const html = `
+                <h2>${countryName}</h2>
+                <img src="${flagUrl}" alt="Flag of ${countryName}">
+                <p><strong>Capital:</strong> ${capital}</p>
+            `;
+
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
